@@ -119,7 +119,7 @@ print_current_test_parameters(void) {
 void
 main(void)
 {
-#define ATTACK_NR   1
+#define ATTACK_NR   9
 #if ATTACK_NR == 1
     attack.technique = DIRECT;
     attack.inject_param = INJECTED_CODE_NO_NOP;
@@ -597,7 +597,7 @@ perform_attack(
                 case RETURN_ORIENTED_PROGRAMMING:
                     // skip over the prologue code of rop_target
                     // to simulate return-oriented programming gadget
-                    payload.overflow_ptr = (uintptr_t) &rop_target;
+                    payload.overflow_ptr = ((uintptr_t) &rop_target) + 8;
                     break;
                 case INJECTED_CODE_NO_NOP:
                     payload.overflow_ptr = buffer;
@@ -1019,7 +1019,6 @@ void
 rop_target()
 {
     printf("success.\nROP function reached.\n");
-    exit(0);
 }
 
 void
