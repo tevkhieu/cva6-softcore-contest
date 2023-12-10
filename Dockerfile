@@ -92,7 +92,7 @@ RUN apt-get -y update && \
 
 
 # install openOCD
-RUN git clone https://github.com/openocd-org/openocd && \
+RUN git clone --recursive https://github.com/openocd-org/openocd && \
     cd openocd && \
     git checkout v0.11.0 && \
     mkdir build && \
