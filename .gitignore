@@ -25,7 +25,6 @@ build/
 *.o
 uart
 work-ver/*
-corev_apu
 corev_apu/fpga/work-fpga
 corev_apu/fpga/reports/
 corev_apu/fpga/scripts/add_sources.tcl
