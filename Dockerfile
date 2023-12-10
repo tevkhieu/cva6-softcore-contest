@@ -132,6 +132,5 @@ RUN useradd -u $UID -m -g user -G plugdev user \
 
 USER user
 
-
-
-
+RUN cd /home/user && \
+	echo "PS1='\[\e[38;5;33m\](sw-docker container) \[\e[38;5;247m\]\u\[\e[0m\]@\[\e[38;5;33m\]\H\[\e[0m\]:\[\e[96;3m\]\w \[\e[0m\]\\$ '" >> .bashrc
