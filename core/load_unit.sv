@@ -349,9 +349,9 @@ module load_unit
         // Exception
         // ----------
         // if we got an exception we need to kill the request immediately
-        if (ex_i.valid) begin
-          req_port_o.kill_req = 1'b1;
-        end
+        // if (ex_i.valid) begin
+        //   req_port_o.kill_req = 1'b1;
+        // end
       end
 
       WAIT_FLUSH: begin
