@@ -861,7 +861,7 @@ ariane_peripherals #(
     .AxiIdWidth   ( AxiIdWidthSlaves ),
     .AxiUserWidth ( AxiUserWidth     ),
     .InclUART     ( 1'b1             ),
-    .InclGPIO     ( 1'b1             ),
+    .InclGPIO     ( 1'b1             )
     `ifdef KINTEX7
     .InclSPI      ( 1'b1         ),
     .InclEthernet ( 1'b1         )
