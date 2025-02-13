@@ -120,6 +120,30 @@ module issue_stage
 
   riscv::xlen_t                             rs1_forwarding_xlen;
   riscv::xlen_t                             rs2_forwarding_xlen;
+  
+  // pipeline issue read operand 
+  logic rs1_sb_iro_reg;
+  logic rs2_sb_iro_reg;
+  logic rs3_sb_iro_reg;
+  scoreboard_entry_t issue_instr_sb_iro_reg;
+  logic issue_instr_valid_sb_iro_reg;
+  
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+        rs1_sb_iro_reg <= 0;
+        rs2_sb_iro_reg <= 0;
+        rs3_sb_iro_reg <= 0;
+        issue_instr_sb_iro_reg <= 0;
+        issue_instr_valid_sb_iro_reg <= 0;
+    end 
+    else begin
+        rs1_sb_iro_reg <= rs1_sb_iro;  // Register scoreboard output
+        rs2_sb_iro_reg <= rs2_sb_iro;
+        rs3_sb_iro_reg <= rs3_sb_iro;
+        issue_instr_sb_iro_reg <= issue_instr_sb_iro;
+        issue_instr_valid_sb_iro_reg <= issue_instr_valid_sb_iro;
+    end
+  end
 
   assign rs1_forwarding_o = rs1_forwarding_xlen[riscv::VLEN-1:0];
   assign rs2_forwarding_o = rs2_forwarding_xlen[riscv::VLEN-1:0];
@@ -138,7 +162,7 @@ module issue_stage
       .NR_ENTRIES(NR_ENTRIES)
   ) i_scoreboard (
       .sb_full_o          (sb_full_o),
-      .unresolved_branch_i(1'b0),
+      .unresolved_branch_i(1'b0), // branch is always resolved oO
       .rd_clobber_gpr_o   (rd_clobber_gpr_sb_iro),
       .rd_clobber_fpr_o   (rd_clobber_fpr_sb_iro),
       .rs1_i              (rs1_iro_sb),
@@ -179,19 +203,19 @@ module issue_stage
       .rs3_len_t(rs3_len_t)
   ) i_issue_read_operands (
       .flush_i            (flush_unissued_instr_i),
-      .issue_instr_i      (issue_instr_sb_iro),
-      .issue_instr_valid_i(issue_instr_valid_sb_iro),
+      .issue_instr_i      (issue_instr_sb_iro_reg),
+      .issue_instr_valid_i(issue_instr_valid_sb_iro_reg),
       .issue_ack_o        (issue_ack_iro_sb),
       .fu_data_o          (fu_data_o),
       .flu_ready_i        (flu_ready_i),
       .rs1_o              (rs1_iro_sb),
-      .rs1_i              (rs1_sb_iro),
+      .rs1_i              (rs1_sb_iro_reg),
       .rs1_valid_i        (rs1_valid_sb_iro),
       .rs2_o              (rs2_iro_sb),
-      .rs2_i              (rs2_sb_iro),
+      .rs2_i              (rs2_sb_iro_reg),
       .rs2_valid_i        (rs2_valid_iro_sb),
       .rs3_o              (rs3_iro_sb),
-      .rs3_i              (rs3_sb_iro),
+      .rs3_i              (rs3_sb_iro_reg),
       .rs3_valid_i        (rs3_valid_iro_sb),
       .rd_clobber_gpr_i   (rd_clobber_gpr_sb_iro),
       .rd_clobber_fpr_i   (rd_clobber_fpr_sb_iro),

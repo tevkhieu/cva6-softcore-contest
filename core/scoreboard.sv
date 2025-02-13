@@ -87,6 +87,24 @@ module scoreboard #(
   logic [BITS_ENTRIES-1:0] issue_pointer_n, issue_pointer_q;
   logic [CVA6Cfg.NrCommitPorts-1:0][BITS_ENTRIES-1:0] commit_pointer_n, commit_pointer_q;
   logic [$clog2(CVA6Cfg.NrCommitPorts):0] num_commit;
+  
+  
+  // pipeline registers for breaking down scoreboard logic in 2 cycles
+  logic rs1_pipeline_valid;
+  logic rs2_pipeline_valid;
+  logic rs3_pipeline_valid;
+  
+always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+        rs1_valid_o <= 1'b0;
+        rs2_valid_o <= 1'b0;
+        rs3_valid_o <= 1'b0;
+    end else begin
+        rs1_valid_o <= rs1_pipeline_valid;
+        rs2_valid_o <= rs2_pipeline_valid;
+        rs3_valid_o <= rs3_pipeline_valid;
+    end
+end
 
   // the issue queue is full don't issue any new instructions
   // works since aligned to power of 2
@@ -337,13 +355,13 @@ module scoreboard #(
   end
 
   // check whether we are accessing GPR[0]
-  assign rs1_valid_o = rs1_valid & ((|rs1_i) | (CVA6Cfg.FpPresent && ariane_pkg::is_rs1_fpr(
+  assign rs1_pipeline_valid = rs1_valid & ((|rs1_i) | (CVA6Cfg.FpPresent && ariane_pkg::is_rs1_fpr(
       issue_instr_o.op
   )));
-  assign rs2_valid_o = rs2_valid & ((|rs2_i) | (CVA6Cfg.FpPresent && ariane_pkg::is_rs2_fpr(
+  assign rs2_pipeline_valid = rs2_valid & ((|rs2_i) | (CVA6Cfg.FpPresent && ariane_pkg::is_rs2_fpr(
       issue_instr_o.op
   )));
-  assign rs3_valid_o = CVA6Cfg.NrRgprPorts == 3 ? rs3_valid & ((|rs3_i) | (CVA6Cfg.FpPresent && ariane_pkg::is_imm_fpr(
+  assign rs3_pipeline_valid = CVA6Cfg.NrRgprPorts == 3 ? rs3_valid & ((|rs3_i) | (CVA6Cfg.FpPresent && ariane_pkg::is_imm_fpr(
       issue_instr_o.op
   ))) : rs3_valid;
 
