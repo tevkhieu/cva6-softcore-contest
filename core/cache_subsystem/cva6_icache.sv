@@ -108,6 +108,8 @@ module cva6_icache
   logic [ICACHE_SET_ASSOC-1:0] vld_rdata;  // valid bits coming from valid regs
   logic [ICACHE_CL_IDX_WIDTH-1:0] vld_addr;  // valid bit
 
+  logic miss_o_buffer;
+
   // cpmtroller FSM
   typedef enum logic [2:0] {
     FLUSH,
@@ -194,7 +196,7 @@ module cva6_icache
     dreq_o.valid = 1'b0;
     mem_data_req_o = 1'b0;
     // performance counter
-    miss_o = 1'b0;
+    miss_o_buffer = 1'b0;
 
     // handle invalidations unconditionally
     // note: invald are mutually exclusive with
@@ -288,7 +290,7 @@ module cva6_icache
             // send out ifill request
             mem_data_req_o = 1'b1;
             if (mem_data_ack_i) begin
-              miss_o  = ~paddr_is_nc;
+              miss_o_buffer  = ~paddr_is_nc;
               state_d = MISS;
             end
           end
@@ -500,6 +502,7 @@ module cva6_icache
       cl_offset_q   <= '0;
       repl_way_oh_q <= '0;
       inv_q         <= '0;
+      miss_o        <= '0;
     end else begin
       cl_tag_q      <= cl_tag_d;
       flush_cnt_q   <= flush_cnt_d;
@@ -511,6 +514,7 @@ module cva6_icache
       cl_offset_q   <= cl_offset_d;
       repl_way_oh_q <= repl_way_oh_d;
       inv_q         <= inv_d;
+      miss_o        <= miss_o_buffer;
     end
   end
 

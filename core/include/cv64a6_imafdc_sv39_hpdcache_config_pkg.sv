@@ -59,7 +59,7 @@ package cva6_config_pkg;
   localparam CVA6ConfigFPGAEn = 0;
 
   localparam CVA6ConfigNrLoadPipeRegs = 1;
-  localparam CVA6ConfigNrStorePipeRegs = 0;
+  localparam CVA6ConfigNrStorePipeRegs = 1;
   localparam CVA6ConfigNrLoadBufEntries = 8;
 
   localparam CVA6ConfigInstrTlbEntries = 16;

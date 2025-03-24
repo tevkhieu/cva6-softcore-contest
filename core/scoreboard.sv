@@ -312,10 +312,10 @@ module scoreboard #(
 
   // WB ports have higher prio than entries
   for (genvar k = 0; unsigned'(k) < CVA6Cfg.NrWbPorts; k++) begin : gen_rs_wb
-    assign rs1_fwd_req[k] = '0;
-    assign rs2_fwd_req[k] = '0;
-    assign rs3_fwd_req[k] = '0;
-    assign rs_data[k] = '0;
+    assign rs1_fwd_req[k] = (k == 0 || k == 1) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs1_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_rs1_fpr(issue_instr_o.op)));
+    assign rs2_fwd_req[k] = (k == 0 || k == 1) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs2_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_rs2_fpr(issue_instr_o.op)));
+    assign rs3_fwd_req[k] = (k == 0 || k == 1) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs3_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_imm_fpr(issue_instr_o.op)));
+    assign rs_data[k] = (k == 0 || k== 1) ? '0 : wbdata_i[k];
   end
   for (genvar k = 0; unsigned'(k) < NR_ENTRIES; k++) begin : gen_rs_entries
     assign rs1_fwd_req[k+CVA6Cfg.NrWbPorts] = (mem_q[k].sbe.rd == rs1_i) & mem_q[k].issued & mem_q[k].sbe.valid & (mem_q[k].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_rs1_fpr(
@@ -448,16 +448,16 @@ module scoreboard #(
 
   // there should never be more than one instruction writing the same destination register (except x0)
   // check that no functional unit is retiring with the same transaction id
-  // for (genvar i = 0; i < CVA6Cfg.NrWbPorts; i++) begin
-  //   for (genvar j = 0; j < CVA6Cfg.NrWbPorts; j++) begin
-  //     assert property (
-  //       @(posedge clk_i) disable iff (!rst_ni) wt_valid_i[i] && wt_valid_i[j] && (i != j) |-> (trans_id_i[i] != trans_id_i[j]))
-  //     else
-  //       $fatal(
-  //           1,
-  //           "Two or more functional units are retiring instructions with the same transaction id!"
-  //       );
-  //   end
-  // end
+  for (genvar i = 0; i < CVA6Cfg.NrWbPorts; i++) begin
+    for (genvar j = 0; j < CVA6Cfg.NrWbPorts; j++) begin
+      assert property (
+        @(posedge clk_i) disable iff (!rst_ni) wt_valid_i[i] && wt_valid_i[j] && (i != j) |-> (trans_id_i[i] != trans_id_i[j]))
+      else
+        $fatal(
+            1,
+            "Two or more functional units are retiring instructions with the same transaction id!"
+        );
+    end
+  end
   //pragma translate_on
 endmodule

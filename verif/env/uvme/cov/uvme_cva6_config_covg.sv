@@ -118,7 +118,7 @@ covergroup cg_cva6_config(string name) with function sample();
       bins NrLoadPipeRegs ={1};
    }
    cp_NrStorePipeRegs : coverpoint cva6_config_pkg::CVA6ConfigNrStorePipeRegs {
-      bins NrStorePipeRegs ={0};
+      bins NrStorePipeRegs ={1};
    }
    cp_NrLoadBufEntries : coverpoint cva6_config_pkg::CVA6ConfigNrLoadBufEntries {
       bins NrLoadBufEntries ={2};
