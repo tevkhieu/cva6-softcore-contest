@@ -312,9 +312,9 @@ module scoreboard #(
 
   // WB ports have higher prio than entries
   for (genvar k = 0; unsigned'(k) < CVA6Cfg.NrWbPorts; k++) begin : gen_rs_wb
-    assign rs1_fwd_req[k] = (k == 0 || k == 1) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs1_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_rs1_fpr(issue_instr_o.op)));
-    assign rs2_fwd_req[k] = (k == 0 || k == 1) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs2_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_rs2_fpr(issue_instr_o.op)));
-    assign rs3_fwd_req[k] = (k == 0 || k == 1) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs3_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_imm_fpr(issue_instr_o.op)));
+    assign rs1_fwd_req[k] = (k == 0 || k == 1 || k == 4 || k == 2) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs1_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_rs1_fpr(issue_instr_o.op)));
+    assign rs2_fwd_req[k] = (k == 0 || k == 1 || k == 4 || k == 2) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs2_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_rs2_fpr(issue_instr_o.op)));
+    assign rs3_fwd_req[k] = (k == 0 || k == 1 || k == 4 || k == 2) ? '0 : (mem_q[trans_id_i[k]].sbe.rd == rs3_i) & wt_valid_i[k] & (~ex_i[k].valid) & (mem_q[trans_id_i[k]].is_rd_fpr_flag == (CVA6Cfg.FpPresent && ariane_pkg::is_imm_fpr(issue_instr_o.op)));
     assign rs_data[k] = (k == 0 || k== 1) ? '0 : wbdata_i[k];
   end
   for (genvar k = 0; unsigned'(k) < NR_ENTRIES; k++) begin : gen_rs_entries

@@ -61,6 +61,7 @@ module perf_counters
   logic read_access_exception, update_access_exception;
 
   logic events[6:1];
+  logic delayed_events[6:1]; // Added for pipeline (delayed version of events)
   //internal signal for  MUX select line input
   logic [4:0] mhpmevent_d[6:1];
   logic [4:0] mhpmevent_q[6:1];
@@ -123,6 +124,16 @@ module perf_counters
 
   end
 
+  // Registering the events for pipeline delay
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      delayed_events <= '{default: 0};
+    end else begin
+      delayed_events <= events;
+    end
+  end
+
+  // Incrementing counters with a pipeline delay
   always_comb begin : generic_counter
     generic_counter_d = generic_counter_q;
     data_o = 'b0;
@@ -133,7 +144,7 @@ module perf_counters
     // Increment the non-inhibited counters with active events
     for (int unsigned i = 1; i <= 6; i++) begin
       if ((!debug_mode_i) && (!we_i)) begin
-        if ((events[i]) == 1 && (!mcountinhibit_i[i+2])) begin
+        if ((delayed_events[i]) == 1 && (!mcountinhibit_i[i+2])) begin
           generic_counter_d[i] = generic_counter_q[i] + 1'b1;
         end
       end
